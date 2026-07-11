@@ -60,6 +60,7 @@ async function checkAPI() {
 async function poll() {
   try {
     const resp = await fetch('/pending');
+    if (!resp.ok) throw new Error(String(resp.status));
     const jobs = await resp.json();
     for (const job of jobs) {
       if (processed.has(job.id)) continue;
@@ -87,10 +88,20 @@ async function poll() {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({status: 'error', error: e.message})
-        });
+        }).catch(() => {});
       }
     }
-  } catch(e) { log('Poll error: ' + e.message); }
+  } catch(e) {
+    if (!window.__serverDown) {
+      window.__serverDown = true;
+      document.getElementById('status').className = 'status';
+      document.getElementById('status').textContent = 'Server offline, retrying...';
+    }
+  }
+  if (window.__serverDown) {
+    window.__serverDown = false;
+    checkAPI();
+  }
 }
 
 checkAPI().then(ok => { if (ok) setInterval(poll, POLL_MS); });
