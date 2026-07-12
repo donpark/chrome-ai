@@ -24,6 +24,10 @@
   "scripts": {
     "build": "tsc",
     "prepare": "tsc",
+    "prestart": "pids=$(lsof -ti tcp:${CHROME_AI_PORT:-8462}); [ -n \"$pids\" ] && kill -9 $pids || true",
+    "start": "python3 server.py",
+    "stop": "pids=$(lsof -ti tcp:${CHROME_AI_PORT:-8462}); [ -n \"$pids\" ] && kill -9 $pids || true",
+    "restart": "npm start",
     "test": "node --test dist/test.js && python3 test.py"
   },
   "repository": "github:donpark/chrome-ai-tools",

@@ -1,3 +1,5 @@
+![Chrome AI Bridge](docs/bridge-screenshot.png)
+
 Call Chrome's built-in AI APIs (Gemini Nano) from Node.js or Python.
 
 Chrome's AI APIs only run inside browser pages. chrome-ai bridges that gap: a Python HTTP server manages a prompt queue, and a bridge page (open once in Chrome) processes prompts by calling the API directly.
