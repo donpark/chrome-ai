@@ -496,13 +496,13 @@ class _Handler(BaseHTTPRequestHandler):
         if path == "/prompt":
             api = body.get("api", "prompt")
 
-            # Reject if bridge reports this API is unavailable, missing, or errored
+            # Reject if bridge has reported and this API is unavailable/missing
             key = {"summarize": "summarizer", "translate": "translator", "write": "writer"}.get(api, "prompt")
             with _lock:
                 status = _api_status.get(key)
-            if status is None:
+            if _api_status and status is None:
                 return self._json({"error": f"{api} API not available in this Chrome"}, 503)
-            if status == "unavailable" or status.startswith("error"):
+            if _api_status and (status == "unavailable" or status.startswith("error")):
                 return self._json({"error": f"{api} not available (status: {status})"}, 503)
 
             prompt_id = uuid.uuid4().hex[:12]
