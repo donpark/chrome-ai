@@ -12,6 +12,7 @@
   },
   "include": [
     "index.ts",
-    "cli.ts"
+    "cli.ts",
+    "test.ts"
   ]
 }

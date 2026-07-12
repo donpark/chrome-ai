@@ -4,12 +4,21 @@ Call Chrome's built-in AI APIs (Gemini Nano) from Node.js or Python.
 
 Chrome's AI APIs only run inside browser pages. chrome-ai bridges that gap: a Python HTTP server manages a prompt queue, and a bridge page (open once in Chrome) processes prompts by calling the API directly.
 
-> **Status: Alpha** APIs may change, edge cases remain. Works for prototyping.
+> **Status: Alpha.** Not yet published to npm. APIs may change, edge cases remain. Works for prototyping via local install.
 
 ## Install
 
 ```bash
 npm install chrome-ai
+```
+
+Then use the `chrome-ai` CLI directly:
+
+```bash
+npx chrome-ai prompt "hello"
+# or install globally
+npm install -g chrome-ai
+chrome-ai summarize "some text"
 ```
 
 Just Chrome. No agent-browser, no extensions, no API keys.

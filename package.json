@@ -23,7 +23,8 @@
   "scripts": {
     "build": "tsc",
     "prepare": "tsc",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc",
+    "test": "node --test dist/test.js && python3 test.py"
   },
   "repository": "github:donpark/chrome-ai",
   "keywords": [
