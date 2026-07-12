@@ -58,7 +58,7 @@ function parseFlags(args, flagNames) {
     return { flags: result, rest };
 }
 function usage() {
-    process.stderr.write('Usage: chrome-nano <command> [options] [text]\n' +
+    process.stderr.write('Usage: chrome-ai <command> [options] [text]\n' +
         '\n' +
         'Commands:\n' +
         '  prompt      Send a prompt to the language model\n' +
@@ -71,7 +71,7 @@ function usage() {
         '  --to LANG     Target language (translate, required)\n' +
         '  --context CTX Context for write command\n' +
         '\n' +
-        'Pipe text via stdin: cat file.txt | chrome-nano summarize\n');
+        'Pipe text via stdin: cat file.txt | chrome-ai summarize\n');
     process.exit(1);
 }
 async function main() {
@@ -97,7 +97,7 @@ async function main() {
         else {
             const url = await startServer();
             process.env.CHROME_AI_URL = url;
-            process.stderr.write(`chrome-nano: started server — open ${url} in Chrome to process jobs\n`);
+            process.stderr.write(`chrome-ai: started server — open ${url} in Chrome to process jobs\n`);
         }
     }
     let result;
@@ -127,6 +127,6 @@ async function main() {
     process.stdout.write(result + '\n');
 }
 main().catch((err) => {
-    process.stderr.write(`chrome-nano: ${err.message}\n`);
+    process.stderr.write(`chrome-ai: ${err.message}\n`);
     process.exit(1);
 });

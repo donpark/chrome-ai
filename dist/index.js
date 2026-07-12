@@ -1,4 +1,4 @@
-// chrome-nano TypeScript client — thin HTTP wrapper around the Python server.
+// chrome-ai TypeScript client — thin HTTP wrapper around the Python server.
 // The server must be running: python chrome_ai/server.py
 // Or set CHROME_AI_URL env var to point to a running server.
 export const DEFAULT_URL = 'http://localhost:8462';
@@ -21,7 +21,7 @@ async function submitJob(params) {
         });
     }
     catch {
-        throw new Error(`chrome-nano server not reachable at ${base()} — run "python3 server.py" and open the bridge page in Chrome, or set CHROME_AI_URL`);
+        throw new Error(`chrome-ai server not reachable at ${base()} — run "python3 server.py" and open the bridge page in Chrome, or set CHROME_AI_URL`);
     }
     if (!resp.ok)
         throw new Error(`${resp.status}`);
