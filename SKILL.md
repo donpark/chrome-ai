@@ -1,114 +1,84 @@
 ---
 name: chrome-ai
-description: Call Chrome's built-in AI APIs (Prompt, Summarizer, Translator, Writer) from Node.js or test scripts. Use when the user needs to test Chrome's LanguageModel/Prompt API, benchmark Gemini Nano, or integrate Chrome AI APIs into automated pipelines. Triggers include "test Chrome Prompt API", "benchmark Gemini Nano", "test LanguageModel API", "call Chrome AI from Node.js", "access Chrome built-in AI", or any task requiring programmatic access to Chrome's on-device AI.
-allowed-tools: Bash(node:*)
+description: Call Chrome's built-in AI APIs (Prompt, Summarizer, Translator, Writer) from Python or Node.js. Use when the user needs to test Chrome's LanguageModel/Prompt API, benchmark Gemini Nano, or integrate Chrome AI APIs into test pipelines. Triggers include "test Chrome Prompt API", "benchmark Gemini Nano", "test LanguageModel API", "call Chrome AI from Python", or any task requiring programmatic access to Chrome's on-device AI.
+allowed-tools: Bash(node:*), Bash(python3:*)
 ---
 
-> This repo is also an npm package: `npm install chrome-ai` → `import { prompt } from 'chrome-ai'`.
+> npm: `npm install chrome-ai` → `import { prompt } from 'chrome-ai'`
+> Python: `python chrome_ai/server.py` then `from chrome_ai.client import nano_prompt`
 
-# Chrome AI — Node.js client for Chrome's built-in AI
+# Chrome AI — Python server + dual language bindings
 
-Chrome's built-in AI APIs (Gemini Nano) only run inside Chrome pages — no CLI, no REST API, no native binding. chrome-ai bridges that gap with a local HTTP server and a bridge page the user opens once in Chrome.
+Chrome's built-in AI APIs (Gemini Nano) only run inside Chrome pages. chrome-ai bridges that gap: a Python HTTP server manages a prompt queue, and a bridge page opened once in Chrome processes prompts.
 
-## How it works
+## Architecture
 
 ```
-Node.js: prompt({ system, user })
-    │
-    ├─ POST /prompt → server queue
-    │
-    ▼
-Bridge page (Chrome, open once):
-    - polls /pending every 500ms
-    - calls LanguageModel.create() + session.prompt()
-    - POSTs result to /result/{id}
-    │
-    ▼
-Node.js: poll /result/{id} → return result
+Client → POST /prompt → Python server queue → Bridge page (Chrome) → LanguageModel API → POST /result → Client polls
 ```
 
-## Usage (npm)
+The Python server runs once. The bridge page is a single Chrome tab you keep open. All clients (Python, Node.js, curl) talk to the same server via HTTP.
+
+## Quick Start
+
+**1. Start the server:**
 
 ```bash
-npm install chrome-ai
+python chrome_ai/server.py
+# → http://localhost:62835
 ```
+
+**2. Open that URL in Chrome.** Keep the tab open.
+
+**3. Use from Python:**
+
+```python
+from chrome_ai.client import nano_prompt
+
+text = nano_prompt("You are helpful.", "Hello!")
+```
+
+**4. Or from Node.js:**
 
 ```js
 import { prompt } from 'chrome-ai';
-
-// On first call, chrome-ai prints the bridge URL to stderr.
-// Open that URL in Chrome once and keep the tab open.
-const answer = await prompt({
-  system: 'You are a helpful assistant.',
-  user: 'What is the capital of France?',
-});
-console.log(answer);
+const text = await prompt({ system: 'You are helpful.', user: 'Hello!' });
 ```
 
-## Usage (manual, from any language)
+**5. Or from curl:**
 
-The server pattern works from any language that can make HTTP requests:
+```bash
+curl -s -X POST http://localhost:62835/prompt -H 'Content-Type: application/json' -d '{"system":"You are helpful.","user":"Hello!"}'
+# → {"id": "abc123"}
+curl -s http://localhost:62835/result/abc123
+# → {"status": "done", "text": "Hello!"}
+```
+
+## Python Client
 
 ```python
-import requests, time
-
-# Start the bridge (or open http://localhost:8765 in Chrome)
-# Submit a prompt
-r = requests.post('http://localhost:8765/prompt', json={
-    'system': 'You are helpful.',
-    'user': 'Hello!'
-})
-prompt_id = r.json()['id']
-
-# Poll for result
-while True:
-    r = requests.get(f'http://localhost:8765/result/{prompt_id}')
-    if r.status_code == 200:
-        print(r.json()['text'])
-        break
-    time.sleep(1)
+nano_prompt(system: str, user: str, timeout: float = 120) -> str
 ```
 
-## Bridge Page
+The client can auto-start the server if not already running:
 
-The server serves a bridge page at the root URL. Open it in Chrome once:
+```python
+from chrome_ai.client import nano_prompt
 
-```
-Chrome AI Bridge
-Ready (available)
-
-Prompt abc123...
-  OK (42 chars)
+# First call auto-starts server, opens Chrome bridge page
+text = nano_prompt("You are helpful.", "Hello!")
 ```
 
-Shows connection status, processes pending prompts automatically, and displays a log. Keep this tab open while using the API.
+## TypeScript Client
 
-## API
+```ts
+prompt(opts: { system?: string; user: string }): Promise<string>
+```
 
-### `prompt(opts)`
-
-| Option | Type | Default |
-|--------|------|---------|
-| `system` | string | `''` |
-| `user` | string | *required* |
-
-Returns a Promise that resolves when Chrome processes the prompt.
-
-### `summarize(opts)`, `translate(opts)`, `write(opts)`
-
-Coming soon — same bridge pattern, dispatches to the right Chrome AI API in the page.
+Requires the server to be running (or `CHROME_AI_URL` env var set).
 
 ## Requirements
 
-- Recent desktop Chrome (v129+, Prompt API on by default)
-- No agent-browser needed. No extensions needed. Just Chrome.
-
-## Server Endpoints
-
-| Method | Path | Purpose |
-|--------|------|---------|
-| POST | `/prompt` | Submit a prompt `{system, user}` → `{id}` |
-| GET | `/pending` | Bridge page polls this for pending prompts |
-| POST | `/result/{id}` | Bridge page submits results `{status, text}` |
-| GET | `/result/{id}` | Client polls this for the result |
-| GET | `/health` | Health check `{ok, port, pending}` |
+- Recent desktop Chrome (v129+)
+- Python 3.9+ (for the server)
+- Node.js (for the TypeScript client)
