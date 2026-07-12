@@ -25,7 +25,16 @@ python chrome_ai/server.py
 
 Open that URL in Chrome. Keep the tab open.
 
-Now use it from **Node.js**:
+Now use the **CLI**:
+
+```bash
+npx chrome-ai prompt "What is the capital of France?"
+npx chrome-ai summarize "Some long text here..."
+# or pipe text in
+cat some-file.txt | npx chrome-ai summarize
+```
+
+Or from **Node.js**:
 
 ```js
 import { prompt } from 'chrome-ai';
@@ -40,9 +49,9 @@ console.log(answer);
 Or from **Python**:
 
 ```python
-from chrome_ai.client import nano_prompt
+from chrome_ai.client import prompt
 
-answer = nano_prompt('You are helpful.', 'What is the capital of France?')
+answer = prompt('You are helpful.', 'What is the capital of France?')
 print(answer)
 ```
 
@@ -97,9 +106,9 @@ const text = await prompt({
 ### Python
 
 ```python
-from chrome_ai.client import nano_prompt
+from chrome_ai.client import prompt
 
-text = nano_prompt(
+text = prompt(
     system: str,   # system prompt
     user: str,     # user message
     timeout: float = 120  # max wait in seconds

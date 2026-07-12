@@ -11,14 +11,29 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist/", "SKILL.md", "server.py", "client.py"],
+  "bin": {
+    "chrome-ai": "./dist/cli.js"
+  },
+  "files": [
+    "dist/",
+    "SKILL.md",
+    "server.py",
+    "client.py"
+  ],
   "scripts": {
     "build": "tsc",
     "prepare": "tsc",
     "prepublishOnly": "tsc"
   },
   "repository": "github:donpark/chrome-ai",
-  "keywords": ["chrome", "gemini", "gemini-nano", "ai", "prompt-api", "language-model"],
+  "keywords": [
+    "chrome",
+    "gemini",
+    "gemini-nano",
+    "ai",
+    "prompt-api",
+    "language-model"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22",

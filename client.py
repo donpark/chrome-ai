@@ -3,9 +3,9 @@
 chrome-ai Python client — submit prompts to Chrome's built-in AI APIs.
 
 Usage:
-  from chrome_ai.client import nano_prompt
+  from chrome_ai.client import prompt
 
-  text = nano_prompt("You are helpful.", "Hello!")
+  text = prompt("You are helpful.", "Hello!")
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ def _get_base_url() -> str:
     return f"http://localhost:{port}"
 
 
-def nano_prompt(
+def prompt(
     system: str, user: str, timeout: float = 120
 ) -> str:
     """Call Chrome's LanguageModel API (Gemini Nano).
