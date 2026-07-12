@@ -31,7 +31,10 @@ async function submitJob(params: Record<string, string>): Promise<string> {
       `chrome-ai server not reachable at ${base()} — run "python3 server.py" and open the bridge page in Chrome, or set CHROME_AI_URL`,
     );
   }
-  if (!resp.ok) throw new Error(`${resp.status}`);
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({error: `${resp.status}`}));
+    throw new Error(err.error || `${resp.status}`);
+  }
   const data = await resp.json() as { id: string };
   return data.id;
 }
